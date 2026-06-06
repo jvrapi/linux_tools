@@ -6,7 +6,7 @@ set -e
 echo "🚀 Iniciando a configuração do ambiente de desenvolvimento no Fedora..."
 
 echo "📦 1/7 - Instalando dependências do sistema e ferramentas de build..."
-sudo dnf install -y fish curl git unzip wget util-linux fontconfig
+sudo dnf install -y fish curl git unzip wget util-linux fontconfig gawk
 sudo dnf install -y @development-tools zlib-devel bzip2 bzip2-devel readline-devel \
     sqlite-devel openssl-devel xz-devel libffi-devel tk-devel tcl-devel
 
