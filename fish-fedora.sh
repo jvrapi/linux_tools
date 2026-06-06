@@ -19,7 +19,7 @@ rm /tmp/JetBrainsMono.zip
 fc-cache -f -v
 
 echo "⭐ 3/7 - Instalando e configurando o Starship (Prompt)..."
-curl -sS https://starship.rs/install.sh | sh -s -- -y
+curl -sS --retry 3 --retry-delay 2 https://starship.rs/install.sh | sh -s -- -y
 mkdir -p ~/.config
 starship preset nerd-font-symbols -o ~/.config/starship.toml
 
