@@ -26,9 +26,62 @@ starship preset nerd-font-symbols -o ~/.config/starship.toml
 echo "🐍 4/7 - Instalando o Pyenv (Gerenciador de versões Python)..."
 rm -rf ~/.pyenv # Limpa instalações antigas para evitar conflitos
 curl -sL https://pyenv.run | bash
+export PATH="$HOME/.pyenv/bin:$PATH"
+eval "$(pyenv init -)"
+echo "🔍 Analisando dinamicamente o catálogo do Pyenv..."
+# Captura de forma inteligente as 4 maiores ramificações estáveis oficiais lançadas
+MINORS=($(pyenv install --list | grep -E "^\s*3\.[0-9]+\.[0-9]+$" | tr -d ' ' | cut -d'.' -f1,2 | sort -V | uniq | tail -n 4))
+# Captura a última subversão exata disponível para cada uma delas
+VERSION_A=$(pyenv install --list | grep -E "^\s*${MINORS[3]}\.[0-9]+$" | tr -d ' ' | tail -n 1)
+VERSION_B=$(pyenv install --list | grep -E "^\s*${MINORS[2]}\.[0-9]+$" | tr -d ' ' | tail -n 1)
+VERSION_C=$(pyenv install --list | grep -E "^\s*${MINORS[1]}\.[0-9]+$" | tr -d ' ' | tail -n 1)
+VERSION_D=$(pyenv install --list | grep -E "^\s*${MINORS[0]}\.[0-9]+$" | tr -d ' ' | tail -n 1)
+
+while true; do
+    echo ""
+    echo "📋 Escolha a versão padrão do Python que deseja compilar:"
+    echo "1) Python $VERSION_A (Mais recente encontrada)"
+    echo "2) Python $VERSION_B"
+    echo "3) Python $VERSION_C"
+    echo "4) Python $VERSION_D"
+    echo "5) Outra versão (Digitar manualmente)"
+    echo ""
+    read -p "Digite a opção desejada (1-5): " OPTION
+
+    case $OPTION in
+        1) PYTHON_VERSION=$VERSION_A; break ;;
+        2) PYTHON_VERSION=$VERSION_B; break ;;
+        3) PYTHON_VERSION=$VERSION_C; break ;;
+        4) PYTHON_VERSION=$VERSION_D; break ;;
+        5)
+            echo ""
+            read -p "👉 Digite a versão exata que deseja instalar (ex: 3.10.13): " CUSTOM_VERSION
+            if pyenv install --list | grep -E "^\s*$CUSTOM_VERSION$" >/dev/null; then
+                PYTHON_VERSION=$CUSTOM_VERSION
+                break
+            else
+                echo "❌ Erro: A versão '$CUSTOM_VERSION' não foi encontrada no Pyenv. Tente novamente."
+            fi
+            ;;
+        *)
+            echo "❌ Opção inválida! Selecione um número de 1 a 5."
+            ;;
+    esac
+done
+
+echo "⚙️ Compilando o Python $PYTHON_VERSION (Isso pode demorar alguns minutos)..."
+pyenv install "$PYTHON_VERSION"
+pyenv global "$PYTHON_VERSION"
+
+
 
 echo "📦 5/7 - Instalando o Mise (Gerenciador de Node.js, Bun, etc)..."
 curl -sL https://mise.jdx.dev/install.sh | sh
+# Define o caminho temporário do binário do Mise para uso interno do script
+MISE_BIN="$HOME/.local/bin/mise"
+echo "🟢 Baixando e configurando o Node.js LTS via Mise..."
+$MISE_BIN use --global node@lts
+
 
 echo "🐟 6/7 - Configurando o Fish Shell (Aliases, Pyenv e Mise)..."
 mkdir -p ~/.config/fish
